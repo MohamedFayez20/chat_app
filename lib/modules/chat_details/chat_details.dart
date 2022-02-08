@@ -2,14 +2,15 @@ import 'package:chat/models/message_model/message_model.dart';
 import 'package:chat/models/user_model/user_model.dart';
 import 'package:chat/shared/cubit/user/user_cubit.dart';
 import 'package:chat/shared/cubit/user/user_states.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class Chat extends StatelessWidget {
   UserModel model;
   Chat({required this.model});
   var messageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Builder(
@@ -23,10 +24,8 @@ class Chat extends StatelessWidget {
                 title: Row(
                   children: [
                     CircleAvatar(
-                      radius: 22,
-                      backgroundImage: UserCubit.get(context).image==null?NetworkImage(
-                          '${UserCubit.get(context).model!.image}')
-                          :FileImage(UserCubit.get(context).image!)as ImageProvider),
+                        radius: 22,
+                        backgroundImage: NetworkImage('${model.image}')),
                     SizedBox(
                       width: 15,
                     ),
@@ -41,12 +40,15 @@ class Chat extends StatelessWidget {
                     Expanded(
                       flex: 17,
                       child: ListView.separated(
-                        physics: BouncingScrollPhysics(),
+                          physics: BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
-                            if(UserCubit.get(context).model!.uId==UserCubit.get(context).messages[index].senderId)
-                              return myMessageItem(UserCubit.get(context).messages[index]);
+                            if (UserCubit.get(context).model!.uId ==
+                                UserCubit.get(context).messages[index].senderId)
+                              return myMessageItem(
+                                  UserCubit.get(context).messages[index]);
                             else
-                              return messageItem(UserCubit.get(context).messages[index]);
+                              return messageItem(
+                                  UserCubit.get(context).messages[index]);
                           },
                           separatorBuilder: (context, index) => SizedBox(
                                 height: 10,
@@ -77,9 +79,14 @@ class Chat extends StatelessWidget {
                             child: MaterialButton(
                               onPressed: () {
                                 UserCubit.get(context).sendMessage(
-                                    receiverId: model.uId!,
-                                    dateTime: DateTime.now().toString(),
-                                    text: messageController.text);
+                                  receiverId: model.uId!,
+                                  dateTime: DateFormat.jm()
+                                      .format(DateTime.now())
+                                      .toString(),
+                                  text: messageController.text,
+                                  lText: model.name!,
+                                );
+                                messageController.clear();
                               },
                               minWidth: 1.0,
                               child: Icon(
@@ -112,9 +119,22 @@ class Chat extends StatelessWidget {
                   topLeft: Radius.circular(15),
                   bottomRight: Radius.circular(10),
                   bottomLeft: Radius.circular(10))),
-          child: Text(
-            '${model.text}',
-            style: TextStyle(color: Colors.white),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${model.text}',
+                style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                '${model.dateTime}',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
           ),
         ),
       );
@@ -128,9 +148,22 @@ class Chat extends StatelessWidget {
                   topRight: Radius.circular(15),
                   bottomRight: Radius.circular(10),
                   bottomLeft: Radius.circular(10))),
-          child: Text(
-            '${model.text}',
-            style: TextStyle(color: Colors.white),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${model.text}',
+                style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                '${model.dateTime}',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+            ],
           ),
         ),
       );

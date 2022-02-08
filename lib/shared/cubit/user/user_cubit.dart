@@ -24,13 +24,21 @@ class UserCubit extends Cubit<UserStates> {
   List<String> titles = ['Chats', 'Profile'];
   void changeNavBar(index) {
     currentIndex = index;
+    if(index==1)
+    {
+      getUserData();
+    }
+    else
+    {
+      getUsers();
+    }
     emit(ChangeNavBarState());
   }
 
   UserModel? model;
   void getUserData() {
     emit(GetUserDataLoadingState());
-    FirebaseFirestore.instance.collection('users').doc(uId!).get().then((value) {
+    FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) {
       model = UserModel.fromJson(value.data()!);
       emit(GetUserDataSuccessState());
     }).catchError((error) {
@@ -59,6 +67,7 @@ class UserCubit extends Cubit<UserStates> {
     required String receiverId,
     required String dateTime,
     required String text,
+    required String lText,
   }) {
     MessageModel messageModel = MessageModel(
       text: text,
@@ -164,5 +173,6 @@ class UserCubit extends Cubit<UserStates> {
       emit(UpdateImageErrorState());
     });
   }
+
 
 }

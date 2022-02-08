@@ -1,4 +1,5 @@
 import 'package:buildcondition/buildcondition.dart';
+import 'package:chat/models/message_model/message_model.dart';
 import 'package:chat/modules/chat_details/chat_details.dart';
 import 'package:chat/shared/cubit/user/user_cubit.dart';
 import 'package:chat/shared/cubit/user/user_states.dart';
@@ -15,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
             body: BuildCondition(
-          condition: UserCubit.get(context).users.length > 0,
+          condition: !UserCubit.get(context).users.isEmpty,
           builder: (context) => Padding(
             padding: const EdgeInsets.only(
               left: 15.0,
@@ -26,11 +27,12 @@ class HomeScreen extends StatelessWidget {
                   child: ListView.separated(
                       physics: BouncingScrollPhysics(),
                       itemBuilder: (context, index) => chatItem(
-                          UserCubit.get(context).users[index], context),
-                      separatorBuilder: (context, index) => Container(
-                            height: 1,
-                            color: Colors.grey.shade300,
-                            margin: EdgeInsets.only(top: 20, left: 10),
+                            UserCubit.get(context).users[index],
+                            context,
+                            index,
+                          ),
+                      separatorBuilder: (context, index) => SizedBox(
+                            height: 10,
                           ),
                       itemCount: UserCubit.get(context).users.length),
                 ),
@@ -39,10 +41,14 @@ class HomeScreen extends StatelessWidget {
           ),
           fallback: (context) => Center(
             child: IconButton(
-              onPressed: (){
+              onPressed: () {
                 UserCubit.get(context).getUsers();
               },
-              icon: Icon(Icons.refresh,size: 40,color: Colors.teal,),
+              icon: Icon(
+                Icons.refresh,
+                size: 40,
+                color: Colors.teal,
+              ),
             ),
           ),
         ));
@@ -50,7 +56,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget chatItem(UserModel model, context) => Container(
+  Widget chatItem(UserModel model, context, index) => Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -62,26 +68,80 @@ class HomeScreen extends StatelessWidget {
               topLeft: Radius.circular(40), bottomLeft: Radius.circular(40)),
           onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Chat(
-                          model: model,
-                        )));
-          },
-          child: Row(
-            children: [
-              CircleAvatar(
-                  radius: 40,
-                  backgroundImage:
-                      NetworkImage('${model.image}')),
-              SizedBox(
-                width: 20,
+              context,
+              MaterialPageRoute(
+                builder: (context) => Chat(
+                  model: model,
+                ),
               ),
-              Text(
-                '${model.name}',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              )
-            ],
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40),
+                  bottomLeft: Radius.circular(40)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                    radius: 35,
+                    backgroundImage: NetworkImage('${model.image}')),
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '${model.name}',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
+                        SizedBox(
+                          width: 70,
+                        ),
+                        !UserCubit.get(context).messages.isEmpty
+                            ? Text(
+                                '${UserCubit.get(context).messages.last.dateTime}',
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.grey.shade700),
+                              )
+                            : SizedBox(width: 0)
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                        UserCubit
+                            .get(context)
+                            .messages
+                            .isEmpty
+                            ? SizedBox(
+                          width: 1,
+                        )
+                            : Text(
+                          '${UserCubit
+                              .get(context)
+                              .messages
+                              .last
+                              .text}',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: Colors.grey.shade600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       );

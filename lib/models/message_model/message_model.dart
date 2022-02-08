@@ -9,6 +9,7 @@ class MessageModel {
     senderId = json['senderId'];
     receiverId = json['receiverId'];
     text = json['text'];
+
     dateTime = json['dateTime'];
   }
   Map<String, dynamic> toMap() {
